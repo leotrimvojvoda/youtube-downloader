@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: youtube-downloader
+
+downloader:
+  output-dir: ${user.home}/Downloads/youtube-downloader
+  yt-dlp-path: yt-dlp
+  ffmpeg-path: ffmpeg
+  max-concurrent-downloads: 2
+  process-timeout: 30m
+  default-max-height: 1080

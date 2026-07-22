@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>YouTube Downloader</title>
+    <style>
+        :root {
+            --bg: #f4f6f9;
+            --card: #ffffff;
+            --border: #d9dee5;
+            --text: #1c2430;
+            --muted: #5b6673;
+            --primary: #2456c4;
+            --primary-hover: #1d4aa8;
+            --error: #b3251e;
+            --error-bg: #fdefee;
+            --success: #1a7f37;
+            --success-bg: #ecf7ef;
+            --info-bg: #eef2fb;
+            --radius: 8px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .page {
+            max-width: 560px;
+            margin: 0 auto;
+            padding: 48px 20px 64px;
+        }
+
+        header { margin-bottom: 24px; }
+
+        header h1 {
+            margin: 0 0 4px;
+            font-size: 22px;
+            font-weight: 650;
+            letter-spacing: -0.01em;
+        }
+
+        header p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+        }
+
+        .field { margin-bottom: 18px; }
+        .field:last-of-type { margin-bottom: 0; }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        label .optional {
+            font-weight: 400;
+            color: var(--muted);
+        }
+
+        input {
+            width: 100%;
+            padding: 9px 12px;
+            font: inherit;
+            font-size: 14px;
+            color: var(--text);
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        input::placeholder { color: #9aa4b1; }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(36, 86, 196, 0.15);
+        }
+
+        .row { display: flex; gap: 14px; }
+        .row .field { flex: 1; }
+
+        .actions {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        button {
+            width: 100%;
+            padding: 10px 18px;
+            font: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            background: var(--primary);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        button:hover:not(:disabled) { background: var(--primary-hover); }
+
+        button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .status-card {
+            display: none;
+            margin-top: 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--info-bg);
+            padding: 16px 20px;
+        }
+
+        .status-card.visible { display: block; }
+        .status-card.error { background: var(--error-bg); border-color: #efc4c1; }
+        .status-card.success { background: var(--success-bg); border-color: #bfe3c9; }
+
+        #statusText {
+            margin: 0;
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .status-card.error #statusText { color: var(--error); }
+        .status-card.success #statusText { color: var(--success); }
+
+        progress {
+            width: 100%;
+            height: 8px;
+            margin-top: 12px;
+            display: none;
+            appearance: none;
+            -webkit-appearance: none;
+            border: none;
+            border-radius: 4px;
+            overflow: hidden;
+            background: #dce3ec;
+        }
+
+        progress.visible { display: block; }
+        progress::-webkit-progress-bar { background: #dce3ec; }
+        progress::-webkit-progress-value { background: var(--primary); transition: width 0.4s ease; }
+        progress::-moz-progress-bar { background: var(--primary); }
+
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12.5px;
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <header>
+        <h1>YouTube Downloader</h1>
+        <p>Download a video, or just the section you need.</p>
+    </header>
+
+    <form id="form" class="card">
+        <div class="field">
+            <label for="url">Video URL</label>
+            <input type="text" id="url" placeholder="https://www.youtube.com/watch?v=..." required>
+        </div>
+        <div class="row">
+            <div class="field">
+                <label for="start">Start <span class="optional">— optional</span></label>
+                <input type="text" id="start" placeholder="MM:SS or HH:MM:SS">
+            </div>
+            <div class="field">
+                <label for="end">End <span class="optional">— optional</span></label>
+                <input type="text" id="end" placeholder="MM:SS or HH:MM:SS">
+            </div>
+        </div>
+        <div class="field">
+            <label for="maxHeight">Max resolution <span class="optional">— defaults to 1080p</span></label>
+            <input type="number" id="maxHeight" placeholder="1080" min="1">
+        </div>
+        <div class="actions">
+            <button type="button" id="submitBtn">Download</button>
+        </div>
+    </form>
+
+    <div class="status-card" id="statusCard">
+        <p id="statusText"></p>
+        <progress id="bar" max="100"></progress>
+    </div>
+
+    <footer>Files are saved on the server in the configured output directory.</footer>
+</div>
+
+<script>
+    const form = document.getElementById('form');
+    const statusCard = document.getElementById('statusCard');
+    const statusText = document.getElementById('statusText');
+    const bar = document.getElementById('bar');
+    const submitBtn = document.getElementById('submitBtn');
+    let pollTimer = null;
+
+    // Block implicit submission (e.g. pressing Enter in a field); only the button starts a download.
+    form.addEventListener('submit', (e) => e.preventDefault());
+
+    submitBtn.addEventListener('click', async () => {
+        if (!form.reportValidity()) {
+            return;
+        }
+        clearInterval(pollTimer);
+
+        const body = { url: document.getElementById('url').value.trim() };
+        const start = document.getElementById('start').value.trim();
+        const end = document.getElementById('end').value.trim();
+        const maxHeight = document.getElementById('maxHeight').value;
+        if (start) body.start = start;
+        if (end) body.end = end;
+        if (maxHeight) body.maxHeight = Number(maxHeight);
+
+        submitBtn.disabled = true;
+        hideBar();
+        show('Submitting...');
+
+        try {
+            const res = await fetch('/api/downloads', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                show('Error: ' + data.error, 'error');
+                submitBtn.disabled = false;
+                return;
+            }
+            poll(data.jobId);
+        } catch (err) {
+            show('Request failed: ' + err.message, 'error');
+            submitBtn.disabled = false;
+        }
+    });
+
+    function poll(jobId) {
+        show('Status: QUEUED');
+        pollTimer = setInterval(async () => {
+            try {
+                const res = await fetch('/api/downloads/' + jobId);
+                const job = await res.json();
+                if (job.status === 'COMPLETED') {
+                    clearInterval(pollTimer);
+                    submitBtn.disabled = false;
+                    hideBar();
+                    show('Done!\nSaved to: ' + job.filePath, 'success');
+                } else if (job.status === 'FAILED') {
+                    clearInterval(pollTimer);
+                    submitBtn.disabled = false;
+                    hideBar();
+                    show('Failed: ' + job.error, 'error');
+                } else {
+                    render(job);
+                }
+            } catch (err) {
+                clearInterval(pollTimer);
+                submitBtn.disabled = false;
+                hideBar();
+                show('Lost connection while polling: ' + err.message, 'error');
+            }
+        }, 2000);
+    }
+
+    function render(job) {
+        const name = job.title ? '“' + job.title + '” — ' : '';
+        const progress = job.progress;
+        if (!progress) {
+            hideBar();
+            show(name + (job.status === 'IN_PROGRESS' ? 'Preparing download...' : 'Status: ' + job.status));
+            return;
+        }
+        bar.classList.add('visible');
+        if (progress.postProcessing) {
+            bar.removeAttribute('value');
+            show(name + 'Merging and cutting (this can take a while)...');
+            return;
+        }
+        if (progress.percent == null) {
+            bar.removeAttribute('value');
+            show(name + 'Downloading...');
+            return;
+        }
+        bar.value = progress.percent;
+        if (progress.percent === 100) {
+            show(name + 'Downloaded. Finishing up...');
+            return;
+        }
+        let text = name + 'Downloading — ' + progress.percent + '%';
+        if (progress.speed) text += ' at ' + progress.speed;
+        if (progress.eta) text += ', ETA ' + progress.eta;
+        show(text);
+    }
+
+    function show(text, cls) {
+        statusText.textContent = text;
+        statusCard.className = 'status-card visible' + (cls ? ' ' + cls : '');
+    }
+
+    function hideBar() {
+        bar.classList.remove('visible');
+    }
+</script>
+</body>
+</html>
