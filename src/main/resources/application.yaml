@@ -9,3 +9,4 @@ downloader:
   max-concurrent-downloads: 2
   process-timeout: 30m
   default-max-height: 1080
+  open-browser: true

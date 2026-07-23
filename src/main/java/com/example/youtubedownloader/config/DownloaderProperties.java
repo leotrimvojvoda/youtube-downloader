@@ -1,6 +1,7 @@
 package com.example.youtubedownloader.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.time.Duration;
 
@@ -11,6 +12,7 @@ public record DownloaderProperties(
         String ffmpegPath,
         int maxConcurrentDownloads,
         Duration processTimeout,
-        int defaultMaxHeight
+        int defaultMaxHeight,
+        @DefaultValue("true") boolean openBrowser
 ) {
 }

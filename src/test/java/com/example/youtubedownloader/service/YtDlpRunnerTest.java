@@ -16,7 +16,7 @@ class YtDlpRunnerTest {
 
     private YtDlpRunner runner(String ffmpegPath) {
         return new YtDlpRunner(new DownloaderProperties(
-                "/tmp/out", "yt-dlp", ffmpegPath, 2, Duration.ofMinutes(30), 1080));
+                "/tmp/out", "yt-dlp", ffmpegPath, 2, Duration.ofMinutes(30), 1080, false));
     }
 
     private DownloadJob job(Integer startSeconds, Integer endSeconds, int maxHeight) {
