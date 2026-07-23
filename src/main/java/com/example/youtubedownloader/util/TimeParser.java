@@ -6,7 +6,8 @@ public final class TimeParser {
     }
 
     /**
-     * Parses a duration given as "SS", "MM:SS" or "HH:MM:SS" into total seconds.
+     * Parses a duration given as "MM", "MM:SS" or "HH:MM:SS" into total seconds.
+     * A bare number is interpreted as minutes (e.g. "10" means 10:00).
      * When higher units are present, lower units must be in the range 0-59.
      */
     public static int parseToSeconds(String value) {
@@ -15,14 +16,14 @@ public final class TimeParser {
         }
         String[] parts = value.trim().split(":", -1);
         if (parts.length > 3) {
-            throw new IllegalArgumentException("Invalid time format '" + value + "', expected SS, MM:SS or HH:MM:SS");
+            throw new IllegalArgumentException("Invalid time format '" + value + "', expected minutes, MM:SS or HH:MM:SS");
         }
         int[] numbers = new int[parts.length];
         for (int i = 0; i < parts.length; i++) {
             try {
                 numbers[i] = Integer.parseInt(parts[i]);
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Invalid time format '" + value + "', expected SS, MM:SS or HH:MM:SS");
+                throw new IllegalArgumentException("Invalid time format '" + value + "', expected minutes, MM:SS or HH:MM:SS");
             }
             if (numbers[i] < 0) {
                 throw new IllegalArgumentException("Time value '" + value + "' must not be negative");
@@ -31,6 +32,9 @@ public final class TimeParser {
             if (hasHigherUnit && numbers[i] > 59) {
                 throw new IllegalArgumentException("Invalid time value '" + value + "': '" + parts[i] + "' must be between 0 and 59");
             }
+        }
+        if (numbers.length == 1) {
+            return numbers[0] * 60;
         }
         int seconds = 0;
         for (int number : numbers) {

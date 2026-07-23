@@ -4,6 +4,7 @@ import com.example.youtubedownloader.job.JobNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -46,5 +47,17 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
     public Map<String, String> handleRejected(RejectedExecutionException e) {
         return Map.of("error", "Too many concurrent downloads, retry later");
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleMissingParameter(MissingServletRequestParameterException e) {
+        return Map.of("error", "Missing required parameter '" + e.getParameterName() + "'");
+    }
+
+    @ExceptionHandler(VideoRenderException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Map<String, String> handleVideoRender(VideoRenderException e) {
+        return Map.of("error", e.getMessage());
     }
 }

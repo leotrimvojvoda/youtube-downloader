@@ -127,6 +127,15 @@
             cursor: not-allowed;
         }
 
+        button.secondary {
+            margin-top: 10px;
+            color: var(--primary);
+            background: #fff;
+            border: 1px solid var(--border);
+        }
+
+        button.secondary:hover:not(:disabled) { background: var(--info-bg); }
+
         .status-card {
             display: none;
             margin-top: 16px;
@@ -191,11 +200,11 @@
         <div class="row">
             <div class="field">
                 <label for="start">Start <span class="optional">— optional</span></label>
-                <input type="text" id="start" placeholder="MM:SS or HH:MM:SS">
+                <input type="text" id="start" placeholder="minutes, MM:SS or HH:MM:SS">
             </div>
             <div class="field">
                 <label for="end">End <span class="optional">— optional</span></label>
-                <input type="text" id="end" placeholder="MM:SS or HH:MM:SS">
+                <input type="text" id="end" placeholder="minutes, MM:SS or HH:MM:SS">
             </div>
         </div>
         <div class="field">
@@ -204,6 +213,7 @@
         </div>
         <div class="actions">
             <button type="button" id="submitBtn">Download</button>
+            <button type="button" class="secondary" onclick="location.href='/timeline.html'">Generate timeline</button>
         </div>
     </form>
 
