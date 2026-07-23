@@ -45,13 +45,12 @@ public class TimelineVideoService {
     /** Frames appended after the end time is reached, holding the final state. */
     static final int TRAILING_FRAMES = FPS;
 
-    private static final int MARGIN = 48;
-    private static final int TRACK_WIDTH = WIDTH - 2 * MARGIN;
+    private static final int LABEL_MARGIN = 32;
     private static final int TRACK_CENTER_Y = 120;
     private static final int LINE_HEIGHT = 4;
     private static final int DOT_DIAMETER = 24;
     private static final int LABEL_BASELINE_Y = 200;
-    private static final Font LABEL_FONT = new Font(Font.SANS_SERIF, Font.PLAIN, 26);
+    private static final Font LABEL_FONT = new Font(Font.SANS_SERIF, Font.BOLD, 30);
 
     private final DownloaderProperties properties;
 
@@ -186,13 +185,13 @@ public class TimelineVideoService {
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, WIDTH, HEIGHT);
         g.setColor(Color.WHITE);
-        g.fillRect(MARGIN, TRACK_CENTER_Y - LINE_HEIGHT / 2, TRACK_WIDTH, LINE_HEIGHT);
-        double dotCenterX = MARGIN + TRACK_WIDTH * (timeline.startSeconds() + elapsed) / timeline.totalSeconds();
+        g.fillRect(0, TRACK_CENTER_Y - LINE_HEIGHT / 2, WIDTH, LINE_HEIGHT);
+        double dotCenterX = (double) WIDTH * (timeline.startSeconds() + elapsed) / timeline.totalSeconds();
         g.fill(new Ellipse2D.Double(
                 dotCenterX - DOT_DIAMETER / 2.0, TRACK_CENTER_Y - DOT_DIAMETER / 2.0, DOT_DIAMETER, DOT_DIAMETER));
         String currentLabel = formatLabel(timeline.startSeconds() + (int) elapsed, withHours);
-        g.drawString(currentLabel, MARGIN, LABEL_BASELINE_Y);
-        g.drawString(totalLabel, WIDTH - MARGIN - g.getFontMetrics().stringWidth(totalLabel), LABEL_BASELINE_Y);
+        g.drawString(currentLabel, LABEL_MARGIN, LABEL_BASELINE_Y);
+        g.drawString(totalLabel, WIDTH - LABEL_MARGIN - g.getFontMetrics().stringWidth(totalLabel), LABEL_BASELINE_Y);
     }
 
     /** Same convention as timeline.html: HH:MM:SS when the total is an hour or more, MM:SS otherwise. */
